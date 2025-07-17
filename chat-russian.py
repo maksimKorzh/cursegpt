@@ -1,4 +1,4 @@
-from gpt import GPTLanguageModel, encode, decode, vocab_size, block_size, device
+from gptrussian import GPTLanguageModel, encode, decode, vocab_size, block_size, device
 import torch
 
 # Initialize model
