@@ -6,12 +6,12 @@ from torch.nn import functional as F
 # hyperparameters
 batch_size = 12 # how many independent sequences will we process in parallel?
 block_size = 64 # what is the maximum context length for predictions?
-max_iters = 2000
-eval_interval = 500
+max_iters = 1800 # perfect at this stage, starts overfitting if goes on
+eval_interval = 100
 learning_rate = 3e-4
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = 20
-n_embd = 128
+n_embd = 64 #128
 n_head = 4
 n_layer = 4
 dropout = 0.0
@@ -22,7 +22,6 @@ torch.manual_seed(1337)
 # wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
 with open('input.txt', 'r', encoding='utf-8') as f:
     text = f.read()
-    print(text)
 
 # here are all the unique characters that occur in this text
 chars = sorted(list(set(text)))
@@ -211,7 +210,10 @@ for iter in range(max_iters):
     if iter % eval_interval == 0 or iter == max_iters - 1:
         losses = estimate_loss()
         print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
-
+        print("\nModel output at this stage:");
+        # generate from the model
+        context = torch.zeros((1, 1), dtype=torch.long, device=device)
+        print(decode(m.generate(context, max_new_tokens=500)[0].tolist()))
     # sample a batch of data
     xb, yb = get_batch('train')
 
@@ -220,8 +222,3 @@ for iter in range(max_iters):
     optimizer.zero_grad(set_to_none=True)
     loss.backward()
     optimizer.step()
-
-# generate from the model
-context = torch.zeros((1, 1), dtype=torch.long, device=device)
-print(decode(m.generate(context, max_new_tokens=500)[0].tolist()))
-#open('more.txt', 'w').write(decode(m.generate(context, max_new_tokens=10000)[0].tolist()))
